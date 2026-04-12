@@ -1,6 +1,6 @@
 from sqlmodel import Field, SQLModel, Relationship
 from typing import Optional, TYPE_CHECKING, List
-from datetime import datetime
+from datetime import datetime, timezone
  
 if TYPE_CHECKING:
     from .company import CompanyProfile
