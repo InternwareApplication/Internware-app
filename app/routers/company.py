@@ -145,7 +145,7 @@ async def view_applicants(
     project_id: int,
     user: CompanyDep,
     db: SessionDep,
-    filter: str = Query("all")
+    status_filter: str = Query("all")
 ):
     """View and manage students who applied for a specific project"""
     project_repo = ProjectRepository(db)
@@ -187,9 +187,9 @@ async def view_applicants(
             shortlisted_with_students.append(data)
         
         # Apply filters for the "others" list
-        if filter == "all" and app.status != "shortlisted":
+        if status_filter == "all" and app.status != "shortlisted":
             filtered_with_students.append(data)
-        elif filter == "shortlisted" and app.status == "shortlisted":
+        elif status_filter == "shortlisted" and app.status == "shortlisted":
             filtered_with_students.append(data)
  
     return templates.TemplateResponse(
@@ -200,7 +200,7 @@ async def view_applicants(
             "project": project,
             "applicants": filtered_with_students,
             "shortlisted": shortlisted_with_students,
-            "filter": filter
+            "status_filter": status_filter
         }
     )
  
