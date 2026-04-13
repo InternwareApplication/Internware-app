@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Browse Projects - Internware{% endblock %}
+ 
+{% block internal_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+ 
+    .browse-container {
+        padding: 2rem;
+        min-height: 100vh;
+    }
+ 
+    .navbar-custom {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+ 
+    .brand-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+ 
+    .search-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+ 
+    .project-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+ 
+    .project-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+ 
+    .company-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+ 
+    .project-meta {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 1rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+ 
+    .project-meta i {
+        margin-right: 0.25rem;
+    }
+ 
+    .btn-view {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1.5rem;
+    }
+</style>
+{% endblock %}
+ 
+{% block content %}
+<div class="browse-container">
+    <!-- Navigation -->
+    <nav class="navbar-custom d-flex justify-content-between align-items-center">
+        <div class="brand-name">InternHub</div>
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ url_for('student_home_view') }}" class="btn btn-link text-decoration-none">Dashboard</a>
+            <a href="{{ url_for('my_applications') }}" class="btn btn-link text-decoration-none">My Apps</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
+        </div>
+    </nav>
+ 
+    <!-- Search Bar -->
+    <div class="search-card">
+        <h4 class="fw-bold mb-3">Browse Projects</h4>
+        <form method="GET" action="{{ url_for('browse_projects') }}">
+            <div class="input-group">
+                <input type="text" class="form-control" name="search" placeholder="Search projects..." value="{{ search }}">
+                <button class="btn btn-view" type="submit">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+ 
+    <!-- Projects List -->
+    {% if projects %}
+        {% for item in projects %}
+        <div class="project-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <h5 class="fw-bold mb-2">{{ item.project.title }}</h5>
+                    <div class="mb-2">
+                        <span class="company-badge">{{ item.company.company_name }}</span>
+                    </div>
+                    <p class="text-muted mb-2">{{ item.project.description[:150] }}{% if item.project.description|length > 150 %}...{% endif %}</p>
+                    <div class="project-meta">
+                        <span><i class="bi bi-geo-alt-fill"></i>{{ item.project.location }}</span>
+                        <span><i class="bi bi-currency-dollar"></i>${{ item.project.stipend }}/mo</span>
+                        <span><i class="bi bi-calendar-fill"></i>{{ item.project.duration }} weeks</span>
+                    </div>
+                </div>
+                <a href="{{ url_for('project_details', project_id=item.project.id) }}" class="btn btn-view">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="search-card text-center">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #dee2e6;"></i>
+            <p class="text-muted mt-3">No projects found. Try adjusting your search.</p>
+        </div>
+    {% endif %}
+ 
+    {% for message in get_flashed_messages(request) %}
+    <div class="alert alert-{{ message.type }} mt-3" role="alert">{{ message.message }}</div>
+    {% endfor %}
+</div>
+{% endblock %}

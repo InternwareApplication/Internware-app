@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block title %}{{ project.title }} - Internware{% endblock %}
+ 
+{% block internal_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+ 
+    .details-container {
+        padding: 2rem;
+        min-height: 100vh;
+    }
+ 
+    .navbar-custom {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+ 
+    .brand-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+ 
+    .project-header {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+ 
+    .company-info {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 1rem;
+        font-weight: 600;
+    }
+ 
+    .project-details {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+ 
+    .detail-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+ 
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+ 
+    .detail-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 1rem;
+    }
+ 
+    .btn-apply {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        width: 100%;
+    }
+ 
+    .btn-applied {
+        background: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        width: 100%;
+        cursor: not-allowed;
+    }
+ 
+    .btn-shortlisted {
+        background: linear-gradient(135deg, #ffc107 0%, #ff6b6b 100%);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        width: 100%;
+    }
+ 
+    .section-title {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #333;
+    }
+</style>
+{% endblock %}
+ 
+{% block content %}
+<div class="details-container">
+    <!-- Navigation -->
+    <nav class="navbar-custom d-flex justify-content-between align-items-center">
+        <div class="brand-name">InternHub</div>
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ url_for('student_home_view') }}" class="btn btn-link text-decoration-none">Dashboard</a>
+            <a href="{{ url_for('browse_projects') }}" class="btn btn-link text-decoration-none">Browse</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
+        </div>
+    </nav>
+ 
+    <!-- Project Header -->
+    <div class="project-header">
+        <div class="mb-3">
+            <a href="{{ url_for('browse_projects') }}" class="text-decoration-none text-muted">
+                <i class="bi bi-arrow-left"></i> Back to Projects
+            </a>
+        </div>
+        <h2 class="fw-bold mb-3">{{ project.title }}</h2>
+        <div class="company-info mb-3">
+            <i class="bi bi-building-fill me-2"></i>{{ company.company_name }}
+        </div>
+        <p class="text-muted mb-0">{{ company.industry }} • {{ company.location }}</p>
+    </div>
+ 
+    <div class="row">
+        <!-- Left Column: Details -->
+        <div class="col-lg-8">
+            <div class="project-details">
+                <h4 class="section-title">Project Details</h4>
+                <div class="detail-item">
+                    <div class="detail-icon">
+                        <i class="bi bi-calendar-fill"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Duration</div>
+                        <div class="text-muted">{{ project.duration }} weeks</div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Stipend</div>
+                        <div class="text-muted">${{ project.stipend }}/month</div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Location</div>
+                        <div class="text-muted">{{ project.location }}</div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon">
+                        <i class="bi bi-play-fill"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Start Date</div>
+                        <div class="text-muted">{{ project.start_date or 'Flexible' }}</div>
+                    </div>
+                </div>
+            </div>
+ 
+            <div class="project-details">
+                <h4 class="section-title">Description</h4>
+                <p class="text-muted">{{ project.description }}</p>
+            </div>
+ 
+            <div class="project-details">
+                <h4 class="section-title">Requirements</h4>
+                <p class="text-muted">{{ project.requirements }}</p>
+            </div>
+        </div>
+ 
+        <!-- Right Column: Apply -->
+        <div class="col-lg-4">
+            <div class="project-details">
+                <h4 class="section-title">Application</h4>
+                
+                {% if has_applied %}
+                    {% if application_status == 'shortlisted' %}
+                        <button class="btn btn-shortlisted" disabled>
+                            <i class="bi bi-star-fill"></i> Shortlisted!
+                        </button>
+                        <p class="text-center text-muted mt-3 mb-0">
+                            Congratulations! You've been shortlisted for this position.
+                        </p>
+                    {% else %}
+                        <button class="btn btn-applied" disabled>
+                            <i class="bi bi-check-circle-fill"></i> Applied
+                        </button>
+                        <p class="text-center text-muted mt-3 mb-0">
+                            Your application is being reviewed.
+                        </p>
+                    {% endif %}
+                {% else %}
+                    <form method="POST" action="{{ url_for('apply_to_project', project_id=project.id) }}">
+                        <button type="submit" class="btn btn-apply">
+                            <i class="bi bi-send-fill"></i> Apply Now
+                        </button>
+                    </form>
+                    <p class="text-center text-muted mt-3 mb-0">
+                        Submit your application for this internship.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+ 
+    {% for message in get_flashed_messages(request) %}
+    <div class="alert alert-{{ message.type }} mt-3" role="alert">{{ message.message }}</div>
+    {% endfor %}
+</div>
+{% endblock %}

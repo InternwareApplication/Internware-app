@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block title %}My Applications - Internware{% endblock %}
+ 
+{% block internal_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+ 
+    .applications-container {
+        padding: 2rem;
+        min-height: 100vh;
+    }
+ 
+    .navbar-custom {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+ 
+    .brand-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+ 
+    .header-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+ 
+    .application-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+ 
+    .application-card:hover {
+        transform: translateY(-3px);
+    }
+ 
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+ 
+    .status-pending {
+        background: #6c757d;
+        color: white;
+    }
+ 
+    .status-shortlisted {
+        background: linear-gradient(135deg, #ffc107 0%, #ff6b6b 100%);
+        color: white;
+    }
+ 
+    .company-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.35rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+ 
+    .tab-btn {
+        padding: 0.5rem 1.5rem;
+        border: none;
+        background: #e9ecef;
+        color: #6c757d;
+        border-radius: 0.5rem;
+        margin-right: 0.5rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+ 
+    .tab-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+ 
+    .btn-view {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+    }
+</style>
+{% endblock %}
+ 
+{% block content %}
+<div class="applications-container">
+    <!-- Navigation -->
+    <nav class="navbar-custom d-flex justify-content-between align-items-center">
+        <div class="brand-name">InternHub</div>
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ url_for('student_home_view') }}" class="btn btn-link text-decoration-none">Dashboard</a>
+            <a href="{{ url_for('browse_projects') }}" class="btn btn-link text-decoration-none">Browse</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
+        </div>
+    </nav>
+ 
+    <!-- Header with Filter Tabs -->
+    <div class="header-card">
+        <h3 class="fw-bold mb-3">My Applications</h3>
+        <div>
+            <a href="{{ url_for('my_applications', filter='all') }}" 
+               class="tab-btn {% if filter == 'all' %}active{% endif %}">
+                All
+            </a>
+            <a href="{{ url_for('my_applications', filter='shortlisted') }}" 
+               class="tab-btn {% if filter == 'shortlisted' %}active{% endif %}">
+                Shortlisted
+            </a>
+            <a href="{{ url_for('my_applications', filter='pending') }}" 
+               class="tab-btn {% if filter == 'pending' %}active{% endif %}">
+                Pending
+            </a>
+        </div>
+    </div>
+ 
+    <!-- Applications List -->
+    {% if applications %}
+        {% for item in applications %}
+        <div class="application-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <h5 class="fw-bold mb-2">{{ item.project.title if item.project else 'Unknown Project' }}</h5>
+                    <div class="mb-2">
+                        <span class="company-badge">
+                            {{ item.company.company_name if item.company else 'Unknown Company' }}
+                        </span>
+                    </div>
+                    <p class="text-muted small mb-2">
+                        {{ item.project.description[:120] if item.project else 'No description' }}{% if item.project and item.project.description|length > 120 %}...{% endif %}
+                    </p>
+                    <div class="d-flex gap-3 align-items-center">
+                        <span class="status-badge status-{{ item.application.status if item.application else 'pending' }}">
+                            {% if item.application and item.application.status == 'shortlisted' %}
+                                <i class="bi bi-star-fill"></i> Shortlisted
+                            {% else %}
+                                <i class="bi bi-clock-fill"></i> Pending
+                            {% endif %}
+                        </span>
+                        <span class="text-muted small">
+                            Applied {{ item.application.applied_at.strftime('%B %d, %Y') if item.application else 'Unknown' }}
+                        </span>
+                    </div>
+                </div>
+                <a href="{{ url_for('project_details', project_id=item.project.id) if item.project else '#' }}" class="btn btn-view">
+                    View Project
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="header-card text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 4rem; color: #dee2e6;"></i>
+            <h5 class="mt-3 text-muted">No applications yet</h5>
+            <p class="text-muted">Browse available projects and start applying!</p>
+            <a href="{{ url_for('browse_projects') }}" class="btn btn-view mt-2">
+                <i class="bi bi-search"></i> Browse Projects
+            </a>
+        </div>
+    {% endif %}
+ 
+    {% for message in get_flashed_messages(request) %}
+    <div class="alert alert-{{ message.type }} mt-3" role="alert">{{ message.message }}</div>
+    {% endfor %}
+</div>
+{% endblock %}
