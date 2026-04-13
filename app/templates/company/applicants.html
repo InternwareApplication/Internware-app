@@ -180,18 +180,18 @@
     <!-- Filter Tabs -->
     <div class="section-card">
         <div class="mb-3">
-            <a href="{{ url_for('view_applicants', project_id=project.id, filter='all') }}" 
-               class="tab-btn {% if filter == 'all' %}active{% endif %}">
+            <a href="{{ url_for('view_applicants', project_id=project.id, view='all') }}" 
+               class="tab-btn {% if view == 'all' %}active{% endif %}">
                 All ({{ applicants|length }})
             </a>
-            <a href="{{ url_for('view_applicants', project_id=project.id, filter='shortlisted') }}" 
-               class="tab-btn {% if filter == 'shortlisted' %}active{% endif %}">
+            <a href="{{ url_for('view_applicants', project_id=project.id, view='shortlisted') }}" 
+               class="tab-btn {% if view == 'shortlisted' %}active{% endif %}">
                 Shortlisted ({{ shortlisted|length }})
             </a>
         </div>
  
         <h5 class="section-title">
-            {% if filter == 'all' %}
+            {% if view == 'all' %}
                 Available Applicants ({{ applicants|length }})
             {% else %}
                 Shortlisted Applicants ({{ applicants|length }})
