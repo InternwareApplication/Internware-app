@@ -180,11 +180,11 @@
     <!-- Filter Tabs -->
     <div class="section-card">
         <div class="mb-3">
-            <a href="{{ url_for('view_applicants', project_id=project.id, view='all') }}" 
+            <a href="{{ url_for('view_applicants', project_id=project.id) }}?view=all" 
                class="tab-btn {% if view == 'all' %}active{% endif %}">
                 All ({{ applicants|length }})
             </a>
-            <a href="{{ url_for('view_applicants', project_id=project.id, view='shortlisted') }}" 
+            <a href="{{ url_for('view_applicants', project_id=project.id) }}?view=shortlisted" 
                class="tab-btn {% if view == 'shortlisted' %}active{% endif %}">
                 Shortlisted ({{ shortlisted|length }})
             </a>

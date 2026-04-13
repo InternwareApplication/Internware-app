@@ -139,7 +139,11 @@ async def create_project_action(
     flash(request, "Project created successfully!", "success")
     return RedirectResponse(url=request.url_for("my_projects"), status_code=status.HTTP_303_SEE_OTHER)
  
-@router.get("/company/projects/{project_id}/applicants", response_class=HTMLResponse)
+@router.get(
+    "/company/projects/{project_id}/applicants",
+    response_class=HTMLResponse,
+    name="view_applicants"   # ✅ ADD THIS
+)
 async def view_applicants(
     request: Request,
     project_id: int,

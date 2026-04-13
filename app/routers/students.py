@@ -155,12 +155,16 @@ async def apply_to_project(
  
  
 # FIX: Changed parameter from status_filter to filter to match template
-@router.get("/student/applications", response_class=HTMLResponse)
+@router.get(
+    "/student/applications",
+    response_class=HTMLResponse,
+    name="my_applications"   # ✅ ADD THIS
+)
 async def my_applications(
     request: Request,
     user: StudentDep,
     db: SessionDep,
-    view: str = Query("all")  # CHANGED: was status_filter
+    view: str = Query("all")
 ):
     """View student's own applications with filtering"""
     try:
@@ -172,23 +176,32 @@ async def my_applications(
         student_profile = student_repo.get_by_user_id(user.id)
         if not student_profile:
             flash(request, "Profile not found", "danger")
-            return RedirectResponse(url="/app", status_code=status.HTTP_303_SEE_OTHER)
+            return RedirectResponse(
+                url="/app",
+                status_code=status.HTTP_303_SEE_OTHER
+            )
         
         # Get all applications for this student
         applications = app_repo.get_by_student(student_profile.id) or []
         
         # Apply filter
         if view == "shortlisted":
-            applications = [app for app in applications if app.status == "shortlisted"]
+            applications = [
+                app for app in applications if app.status == "shortlisted"
+            ]
         elif view == "pending":
-            applications = [app for app in applications if app.status == "pending"]
+            applications = [
+                app for app in applications if app.status == "pending"
+            ]
         
         # Build applications with project and company details
         apps_with_details = []
         for app in applications:
             project = project_repo.get_by_id(app.project_id)
             if not project:
-                logger.warning(f"Project {app.project_id} not found for application {app.id}")
+                logger.warning(
+                    f"Project {app.project_id} not found for application {app.id}"
+                )
                 continue
             
             company = company_repo.get_by_id(project.company_id)
@@ -196,7 +209,7 @@ async def my_applications(
             apps_with_details.append({
                 "application": app,
                 "project": project,
-                "company": company if company else None
+                "company": company
             })
         
         return templates.TemplateResponse(
@@ -208,7 +221,11 @@ async def my_applications(
                 "view": view
             }
         )
+
     except Exception as e:
         logger.error(f"Error in my_applications: {e}", exc_info=True)
         flash(request, "An error occurred loading your applications", "danger")
-        return RedirectResponse(url="/app", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(
+            url="/app",
+            status_code=status.HTTP_303_SEE_OTHER
+        )
