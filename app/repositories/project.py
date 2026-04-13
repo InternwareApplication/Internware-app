@@ -34,6 +34,10 @@ class ProjectRepository:
             self.db.rollback()
             raise
 
+    def get_all(self) -> List[Project]:
+        """Fetch all projects"""
+        return self.db.exec(select(Project)).all()
+
     def get_by_id(self, project_id: int) -> Optional[Project]:
         """Get project by ID"""
         return self.db.get(Project, project_id)
