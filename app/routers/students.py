@@ -189,11 +189,11 @@ async def my_applications(
 
             company = company_repo.get_by_id(project.company_id)
             
-        apps_with_details.append({
-            "application": app,
-            "project": project,
-            "company": company if company else {"company_name": "N/A"} # Fallback
-        })
+            apps_with_details.append({
+                "application": app,
+                "project": project,
+                "company": company if company else {"company_name": "N/A"} # Fallback
+            })
         
         return templates.TemplateResponse(
             request=request,
