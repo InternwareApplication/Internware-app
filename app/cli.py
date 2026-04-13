@@ -10,6 +10,7 @@ cli = typer.Typer()
 def initialize():
     """Wipe and seed the database with test users and profiles."""
     with get_cli_session() as db:
+        drop_all()
         create_db_and_tables()
 
         # 1. Create Admin
