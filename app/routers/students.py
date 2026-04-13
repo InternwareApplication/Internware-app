@@ -1,3 +1,5 @@
+from asyncio.log import logger
+
 from fastapi import APIRouter, Request, status, Query, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from app.dependencies.session import SessionDep
@@ -159,45 +161,49 @@ async def my_applications(
     db: SessionDep,
     filter: str = Query("all")
 ):
-    student_repo = StudentRepository(db)
-    app_repo = ApplicationRepository(db)
-    project_repo = ProjectRepository(db)
-    company_repo = CompanyRepository(db)
-    
-    student_profile = student_repo.get_by_user_id(user.id)
-    if not student_profile:
-        # Safe-guard: If profile is missing, we can't show applications
-        return RedirectResponse(url="/student/home", status_code=303)
-    
-    # Ensure this repo method uses student_profile.id
-    applications = app_repo.get_by_student(student_profile.id)
-    
-    if filter == "shortlisted":
-        applications = [app for app in applications if app.status == "shortlisted"]
-    elif filter == "pending":
-        applications = [app for app in applications if app.status == "pending"]
-    
-    apps_with_details = []
-    for app in applications:
-        project = project_repo.get_by_id(app.project_id)
-        # Add safety check: if the project is deleted or missing, handle it gracefully
-        if not project:
-            continue 
-
-        company = company_repo.get_by_id(project.company_id)
+    try:
+        student_repo = StudentRepository(db)
+        app_repo = ApplicationRepository(db)
+        project_repo = ProjectRepository(db)
+        company_repo = CompanyRepository(db)
         
-    apps_with_details.append({
-        "application": app,
-        "project": project,
-        "company": company if company else {"company_name": "N/A"} # Fallback
-    })
-    
-    return templates.TemplateResponse(
-        request=request,
-        name="student/applications.html",
-        context={
-            "user": user,
-            "applications": apps_with_details,
-            "filter": filter
-        }
-    )
+        student_profile = student_repo.get_by_user_id(user.id)
+        if not student_profile:
+            # Safe-guard: If profile is missing, we can't show applications
+            return RedirectResponse(url="/student/home", status_code=303)
+        
+        # Ensure this repo method uses student_profile.id
+        applications = app_repo.get_by_student(student_profile.id)
+        
+        if filter == "shortlisted":
+            applications = [app for app in applications if app.status == "shortlisted"]
+        elif filter == "pending":
+            applications = [app for app in applications if app.status == "pending"]
+        
+        apps_with_details = []
+        for app in applications:
+            project = project_repo.get_by_id(app.project_id)
+            # Add safety check: if the project is deleted or missing, handle it gracefully
+            if not project:
+                continue 
+
+            company = company_repo.get_by_id(project.company_id)
+            
+        apps_with_details.append({
+            "application": app,
+            "project": project,
+            "company": company if company else {"company_name": "N/A"} # Fallback
+        })
+        
+        return templates.TemplateResponse(
+            request=request,
+            name="student/applications.html",
+            context={
+                "user": user,
+                "applications": apps_with_details,
+                "filter": filter
+            }
+        )
+    except Exception as e:
+        logger.error(f"CRITICAL ERROR in View Applications: {e}", exc_info=True)
+        raise e

@@ -7,12 +7,12 @@ if TYPE_CHECKING:
     from .application import Application
  
 class ProjectBase(SQLModel):
-    title: str
+    title: str = Field(index=True)
     description: str = ""
     requirements: str = ""
     stipend: float = 0.0
     duration: int = 12  # weeks
-    location: str = ""
+    location: str = "" = Field(index=True)
     start_date: Optional[str] = None
     posted_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
