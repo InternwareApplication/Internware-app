@@ -11,7 +11,7 @@ from app.utilities.flash import flash
 from . import router, templates
 
 @router.get("/admin", response_class=HTMLResponse)
-async def admin_dashboard(
+async def admin_home_view(
     request: Request,
     user: AdminDep,
     db: SessionDep

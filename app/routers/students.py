@@ -9,6 +9,7 @@ from app.repositories.company import CompanyRepository
 from app.utilities.flash import flash
 from . import router, templates
 
+
 @router.get("/app", response_class=HTMLResponse)
 async def student_home_view(
     request: Request,
@@ -46,6 +47,7 @@ async def student_home_view(
         }
     )
 
+
 @router.get("/student/browse", response_class=HTMLResponse)
 async def browse_projects(
     request: Request,
@@ -77,6 +79,7 @@ async def browse_projects(
             "search": search or ""
         }
     )
+
 
 @router.get("/student/project/{project_id}", response_class=HTMLResponse)
 async def project_details(
@@ -119,6 +122,7 @@ async def project_details(
         }
     )
 
+
 @router.post("/student/apply/{project_id}")
 async def apply_to_project(
     request: Request,
@@ -145,4 +149,52 @@ async def apply_to_project(
     return RedirectResponse(
         url=request.url_for("project_details", project_id=project_id), 
         status_code=status.HTTP_303_SEE_OTHER
+    )
+
+
+@router.get("/student/applications", response_class=HTMLResponse)
+async def my_applications(
+    request: Request,
+    user: StudentDep,
+    db: SessionDep,
+    filter: str = Query("all")
+):
+    """View student's own applications with filtering"""
+    student_repo = StudentRepository(db)
+    app_repo = ApplicationRepository(db)
+    project_repo = ProjectRepository(db)
+    company_repo = CompanyRepository(db)
+    
+    student_profile = student_repo.get_by_user_id(user.id)
+    if not student_profile:
+        flash(request, "Please complete your profile", "warning")
+        return RedirectResponse(url=request.url_for("student_home_view"), status_code=status.HTTP_303_SEE_OTHER)
+    
+    applications = app_repo.get_by_student(student_profile.id)
+    
+    # Apply filter
+    if filter == "shortlisted":
+        applications = [app for app in applications if app.status == "shortlisted"]
+    elif filter == "pending":
+        applications = [app for app in applications if app.status == "pending"]
+    
+    # Attach project and company details
+    apps_with_details = []
+    for app in applications:
+        project = project_repo.get_by_id(app.project_id)
+        company = company_repo.get_by_id(project.company_id) if project else None
+        apps_with_details.append({
+            "application": app,
+            "project": project,
+            "company": company
+        })
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="student/applications.html",
+        context={
+            "user": user,
+            "applications": apps_with_details,
+            "filter": filter
+        }
     )

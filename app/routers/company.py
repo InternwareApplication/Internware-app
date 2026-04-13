@@ -10,7 +10,7 @@ from app.utilities.flash import flash
 from . import router, templates
 
 @router.get("/company", response_class=HTMLResponse)
-async def company_dashboard(
+async def company_home_view(
     request: Request,
     user: CompanyDep,
     db: SessionDep
