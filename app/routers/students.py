@@ -160,7 +160,7 @@ async def my_applications(
     request: Request,
     user: StudentDep,
     db: SessionDep,
-    status_filter: str = Query("all")  # CHANGED: was status_filter
+    filter: str = Query("all")  # CHANGED: was status_filter
 ):
     """View student's own applications with filtering"""
     try:
@@ -178,9 +178,9 @@ async def my_applications(
         applications = app_repo.get_by_student(student_profile.id) or []
         
         # Apply filter
-        if status_filter == "shortlisted":
+        if filter == "shortlisted":
             applications = [app for app in applications if app.status == "shortlisted"]
-        elif status_filter == "pending":
+        elif filter == "pending":
             applications = [app for app in applications if app.status == "pending"]
         
         # Build applications with project and company details
@@ -205,7 +205,7 @@ async def my_applications(
             context={
                 "user": user,
                 "applications": apps_with_details,
-                "status_filter": status_filter
+                "filter": filter
             }
         )
     except Exception as e:
