@@ -159,7 +159,6 @@ async def my_applications(
     db: SessionDep,
     filter: str = Query("all")
 ):
-    """View student's own applications with filtering"""
     student_repo = StudentRepository(db)
     app_repo = ApplicationRepository(db)
     project_repo = ProjectRepository(db)
@@ -167,26 +166,30 @@ async def my_applications(
     
     student_profile = student_repo.get_by_user_id(user.id)
     if not student_profile:
-        flash(request, "Please complete your profile", "warning")
-        return RedirectResponse(url=request.url_for("student_home_view"), status_code=status.HTTP_303_SEE_OTHER)
+        # Safe-guard: If profile is missing, we can't show applications
+        return RedirectResponse(url="/student/home", status_code=303)
     
+    # Ensure this repo method uses student_profile.id
     applications = app_repo.get_by_student(student_profile.id)
     
-    # Apply filter
     if filter == "shortlisted":
         applications = [app for app in applications if app.status == "shortlisted"]
     elif filter == "pending":
         applications = [app for app in applications if app.status == "pending"]
     
-    # Attach project and company details
     apps_with_details = []
     for app in applications:
         project = project_repo.get_by_id(app.project_id)
-        company = company_repo.get_by_id(project.company_id) if project else None
+        # Add safety check: if the project is deleted or missing, handle it gracefully
+        if not project:
+            continue 
+
+        company = company_repo.get_by_id(project.company_id)
+        
         apps_with_details.append({
             "application": app,
             "project": project,
-            "company": company
+            "company": company or {"company_name": "Unknown Company"} # Fallback object
         })
     
     return templates.TemplateResponse(
