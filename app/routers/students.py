@@ -171,7 +171,7 @@ async def my_applications(
         student_profile = student_repo.get_by_user_id(user.id)
         if not student_profile:
             # Safe-guard: If profile is missing, we can't show applications
-            return RedirectResponse(url="/student/home", status_code=303)
+            return RedirectResponse(url="/app", status_code=303)
         
         # Ensure this repo method uses student_profile.id
         applications = app_repo.get_by_student(student_profile.id) or []
