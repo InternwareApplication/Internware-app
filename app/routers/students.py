@@ -1,5 +1,3 @@
-from asyncio.log import logger
-
 from fastapi import APIRouter, Request, status, Query, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from app.dependencies.session import SessionDep
@@ -10,6 +8,9 @@ from app.repositories.application import ApplicationRepository
 from app.repositories.company import CompanyRepository
 from app.utilities.flash import flash
 from . import router, templates
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @router.get("/app", response_class=HTMLResponse)
@@ -159,7 +160,7 @@ async def my_applications(
     request: Request,
     user: StudentDep,
     db: SessionDep,
-    filter: str = Query("all")
+    status_filter: str = Query("all")
 ):
     try:
         student_repo = StudentRepository(db)
@@ -173,11 +174,11 @@ async def my_applications(
             return RedirectResponse(url="/student/home", status_code=303)
         
         # Ensure this repo method uses student_profile.id
-        applications = app_repo.get_by_student(student_profile.id)
+        applications = app_repo.get_by_student(student_profile.id) or []
         
-        if filter == "shortlisted":
+        if status_filter == "shortlisted":
             applications = [app for app in applications if app.status == "shortlisted"]
-        elif filter == "pending":
+        elif status_filter == "pending":
             applications = [app for app in applications if app.status == "pending"]
         
         apps_with_details = []
@@ -201,7 +202,7 @@ async def my_applications(
             context={
                 "user": user,
                 "applications": apps_with_details,
-                "filter": filter
+                "filter": status_filter
             }
         )
     except Exception as e:
